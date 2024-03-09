@@ -1,0 +1,30 @@
+#jednostki, typ danych wejsciowych i ich plik
+units		real
+atom_style	charge
+box         tilt large
+read_data	data
+
+#ustawienia potencjalu
+pair_style	reaxff lmp_control
+pair_coeff	* * CeO.ff Ce O
+
+#lista sasiadow
+neighbor            0.01 bin
+neigh_modify        delay 50 every 50 
+
+#ustawienie wczytywania ladunkow z pliku
+fix         1 all qeq/reax 1 0.0 10.0 1e-6 param.qeq
+fix         2 all box/relax iso 0.0 vmax 0.001
+
+#zapis
+thermo_style    custom step etotal press vol
+thermo		1
+
+dump        1 all custom 10 ovito_dump/dump.relax.* id type xs ys zs vx vy vz
+
+#ustawienia relaksacji i jej parametrow
+min_style   cg
+minimize    1.0e-7 1.0e-9 100 1000
+
+#zapis koncowej struktury do pliku
+write_data  post.data
